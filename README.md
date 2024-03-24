@@ -1,9 +1,20 @@
-# CQU-class-Import
-## 重庆大学小爱课程表课程导入系统
+<p align="center">
+  <a href="https://github.com/WJZ-P/CQU-class-Import">
+    <img src="xiaowei.png" alt="CQU">
+  </a>
+</p>
+
+<div align="center">
+  
+# 重庆大学小爱课程表课程导入系统
+
+</div>
+
+## 说明
 
 使用js开发,通过抓取接口而非分析html的方式获取课程数据,兼容性更高.
 
-### 特点
+### 主要特点
 
 - 使用fetch获取json
 - ⚠注意，脚本会访问你的localStorage以获取鉴权token
@@ -20,5 +31,3 @@
 
 #### 贡献者
 **WJZ-P**
-
-[![GitHub Streak](https://github-readme-streak-stats.herokuapp.com?user=WJZ-P&theme=ayu-light&border_radius=5&locale=zh_Hans)](https://git.io/streak-stats)
