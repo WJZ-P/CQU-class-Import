@@ -1,28 +1,47 @@
 async function scheduleHtmlProvider() {//函数名不要动
     await loadTool('AIScheduleTools')//加载工具包
     console.log("工具包加载完成")
-    const res = await fetch('https://my.cqu.edu.cn/api/timetable/class/timetable/stu/schedule-detail', {
+    console.log("正在尝试读取课程表信息")
+    let res="嘻嘻哈哈"
+    let myjson="0821"
+    try {
+      res = await fetch('https://my.cqu.edu.cn/api/timetable/class/timetable/stu/schedule-detail', {
         method: 'POST',
         headers: {
             'Authorization': "Bearer " + localStorage.getItem("cqu_edu_CURRENT_TOKEN").replace(/"/g, ""),
         }
     })
+      myjson=await res.json()
+    console.log("课程信息导入成功！信息如下")
+    console.log(myjson)
 
     await AIScheduleAlert({
-        titleText: '欢迎使用(・`ω´・)!', // 标题内容，字体比较大，不传默认为提示
-        contentText: '点击确认就可以导入辣!\n(*＞ｖ＜)ゞ*゜+\n\n——WJZ_P', // 提示信息，字体稍小，支持使用``达到换行效果，具体使用效果建议真机测试
-        confirmText: '确认(*￣▽￣)d', // 确认按钮文字，可不传默认为确认
+      titleText: '欢迎使用(・`ω´・)!', // 标题内容，字体比较大，不传默认为提示
+      contentText: '点击确认就可以导入辣!\n(*＞ｖ＜)ゞ*゜+\n\n——WJZ_P', // 提示信息，字体稍小，支持使用``达到换行效果，具体使用效果建议真机测试
+      confirmText: '确认(*￣▽￣)d', // 确认按钮文字，可不传默认为确认
+
+  })
+    } catch (error) {
+      console.log(error)
+      console.log("课程信息导入失败!")
+      //下面提示框内容为AI生成
+      await AIScheduleAlert({
+        titleText: '失败了呢…(>_<)', // 标题内容：软萌撒娇的语气，加上委屈的颜文字
+        contentText: '课程信息跑丢了…  (；ω；｀)  请…请联系WJZ铲屎官帮忙找找喵… (இωஇ。)', // 提示信息：更加详细的软萌描述，加上哭泣的颜文字，请求帮助的语气
+        confirmText: '嗯… 确认…喵…', // 确认按钮文字：弱气软糯的确认语气，最后加上猫娘标志性的“喵”
     })
-    myjson=await res.json()
-    console.log(myjson)
+    }
+
     return JSON.stringify(myjson)
 }
 
 function scheduleHtmlParser(tableJson) {
     const myjson = JSON.parse(tableJson)
+    console.log("下面打印出由parser提供的json")
     console.log(myjson)
     const result = []
     const classTimetableVOList = myjson.classTimetableVOList
+    console.log("下面打印出classTimetableVOList")
     console.log(classTimetableVOList)
     //下面对每个课程元素进行操作
     classTimetableVOList.forEach(classJson => {
@@ -33,10 +52,11 @@ function scheduleHtmlParser(tableJson) {
         classInfo.day = classJson.weekDay           //获取是周几上课
         //下面获取节次
         let sectionString = classJson.periodFormat//获取string,例[10-12节]
+        console.log("当前获取到的periodFormat为"+sectionString)
         if(sectionString==null|| sectionString=="")
         {
           console.log("！！！！！！！！准备退出这次循环！")
-          return 
+          return
         }           //如果有问题就直接结束循环。
         //else console.log("没问题")
         //比如整周的课的section就是null
@@ -45,9 +65,17 @@ function scheduleHtmlParser(tableJson) {
         //console.log(`当前获取到的string为${sectionString}`)
         let sectionSlot = sectionString.match(/(\d+)-(\d+)/)
         //console.log(`当前获取到的sectionslot为${sectionSlot}`)
+        let startSection,endSection
+        try{
+          startSection = Number(sectionSlot[1])//开始节次
+          endSection = Number(sectionSlot[2])//结束节次
+        }
+        catch{
+          console.log("periodFormat切分失败！说明格式为“xx节”!")
+          startSection=Number(sectionString.split("节")[0])
+          endSection=startSection
+        }
 
-        let startSection = Number(sectionSlot[1])//开始节次
-        let endSection = Number(sectionSlot[2])//结束节次
         let classSection = []
         for (let i = startSection; i <= endSection; i++) {
           classSection.push(i)
@@ -87,7 +115,7 @@ async function scheduleTimer({providerRes,parserRes} = {}) {
   // 返回时间配置JSON，所有项都为可选项，如果不进行时间配置，请返回空对象
   return {
     totalWeek: 20, // 总周数：[1, 30]之间的整数
-    startSemester: '', // 开学时间：时间戳，13位长度字符串，推荐用代码生成
+    startSemester: '1739721600000', // 开学时间：时间戳，13位长度字符串，推荐用代码生成
     startWithSunday: false, // 是否是周日为起始日，该选项为true时，会开启显示周末选项
     showWeekend: true, // 是否显示周末
     forenoon: 4, // 上午课程节数：[1, 10]之间的整数
